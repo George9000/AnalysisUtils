@@ -1,0 +1,8 @@
+name = "AnalysisUtils"
+uuid = "8af7f45d-2294-41af-b6f5-7400e12a87dc"
+authors = ["George9000 <thomaspg976@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+DataSkimmer = "54a5dec1-bae8-447e-bd66-474f7865e6c6"
