@@ -31,9 +31,16 @@ function append_output(f::Function, filename::AbstractString;
 end
 
 """
-    surveydf(df, symp::Tuple)
+    surveydf(df, symb::Tuple)
 
-  Survey a dataframe. Show unique categorical values of tuple of symbols.
+Run describe and skim on a dataframe.
+Show unique categorical values of a tuple of tuples: ((symbol, n_unique_values),).
+
+Arguments:
+df, symbol
+symb, tuple of tuples; may be empty, which is the default
+Output:
+text output
 """
 function surveydf(df::DataFrame, symb::Tuple = ())
     show(describe(df, :min, :max, :nmissing, :nuniqueall, :eltype), allcols = true, allrows = true, truncate = 0)
@@ -55,6 +62,19 @@ function surveydf(df::DataFrame, symb::Tuple = ())
     end
 end
 
+"""
+    describeDF(df, name, cats)
+
+Run the function surveydf on a df with a header.
+
+Arguments:
+df, symbol for dataframe
+name, string for a header title
+cats, tuple, empty or not, of categorical variables
+
+Output:
+text output
+"""
 function describeDF(df, name, cats)
    header(name, sep = "=")
    surveydf(df, cats)
