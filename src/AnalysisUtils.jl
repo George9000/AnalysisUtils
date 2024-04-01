@@ -53,7 +53,7 @@ function surveydf(df::DataFrame, symb::Tuple = ())
             n = min(length(unique(df[:,s])), n)
             header("Top " * string(n) * " unique values of " * String(s), sep = "-")
             g = groupby(df, s)
-            r = combine(g, nrow)
+            r = combine(g, nrow, proprow => "proportion")
             r = sort(r, :nrow, rev = true)
             r = r[1:n, :]
             show(r, allrows = true, truncate = 0)
