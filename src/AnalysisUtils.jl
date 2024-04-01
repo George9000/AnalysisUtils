@@ -54,6 +54,7 @@ function surveydf(df::DataFrame, symb::Tuple = ())
             header("Top " * string(n) * " unique values of " * String(s), sep = "-")
             g = groupby(df, s)
             r = combine(g, nrow, proprow => "proportion")
+            r = transform!(r, :proprow => ByRow(p -> 100*p), renamecols = false)
             r = sort(r, :nrow, rev = true)
             r = r[1:n, :]
             show(r, allrows = true, truncate = 0)
