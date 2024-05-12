@@ -78,6 +78,7 @@ text output
 """
 function describeDF(df, name, cats)
    header(name, sep = "=")
+   println("\n")
    surveydf(df, cats)
 end
 
