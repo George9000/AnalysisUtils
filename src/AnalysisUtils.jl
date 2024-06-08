@@ -5,9 +5,9 @@ export header, append_output, surveydf, describeDF, pageddf, peekfile
 """
     header(header; sep="-", pre="", post="")
 
-  Print header with a line of characters uses as separators from content below.
-  May add a prefix and postfix, for example, newlines.
-  Intended as an internal function for use with output functions.
+Print header with a line of characters uses as separators from content below.
+May add a prefix and postfix, for example, newlines.
+Intended as an internal function for use with output functions.
 """
 function header(header; sep="-", pre="", post="")
     seplen = length(header)
@@ -17,7 +17,14 @@ end
 """
     append_output(f::Function, filename::AbstractString; mode::AbstractString="a", prepend = "", append = "")
 
-  Take output from a function and write or append it to a text file.
+Take output from a function and write or append it to a text file.
+The output is whatever is written to the stdout by the function, with a newline before and after the output.
+Positional Args:
+f function which will output. This can be added in do format after the append_output call.
+filename
+mode
+prepend, string to place on the newline before the output; default is empty string
+append, string to place on the newline after the output; default is empty string
 """
 function append_output(f::Function, filename::AbstractString;
     mode::AbstractString="a", prepend = "", append = "")
@@ -31,16 +38,15 @@ function append_output(f::Function, filename::AbstractString;
 end
 
 """
-    surveydf(df, symb::Tuple)
+    surveydf(df, symb::Tuple = ())
 
 Run describe and skim on a dataframe.
-Show unique categorical values of a tuple of tuples: ((symbol, n_unique_values),).
+Show unique categorical values of symbols in the tuple. a tuple of tuples: ((symbol, n_unique_values),).
 
-Arguments:
-df, symbol
-symb, tuple of tuples; may be empty, which is the default
-Output:
-text output
+Positional Arguments:
+df
+symb, a tuple of tuples ((symbol, n_unique_values),)
+  default is an empty tuple
 """
 function surveydf(df::DataFrame, symb::Tuple = ())
     show(describe(df, :min, :max, :nmissing, :nuniqueall, :eltype), allcols = true, allrows = true, truncate = 0)
@@ -66,15 +72,12 @@ end
 """
     describeDF(df, name, cats)
 
-Run the function surveydf on a df with a header.
+Run the function, surveydf, on a df preceded by a header string followed by a line of separator characters.
 
-Arguments:
+Positional Arguments:
 df, symbol for dataframe
 name, string for a header title
-cats, tuple, empty or not, of categorical variables
-
-Output:
-text output
+cats, tuple, a tuple of tuples of categorical columns ((symbol, n_unique_values),)
 """
 function describeDF(df, name, cats)
    header(name, sep = "=")
@@ -87,6 +90,11 @@ end
 
 Function to inspect a dataframe and show a limited number of rows
 and a 'paged' view of columns.
+Positional args:
+df
+rstart: start of row count
+rc: n of rows to show
+ndisplay: columns to show on each line
 """
 function pageddf(df, rstart, rc, ndisplay)
     stepdelta= ndisplay - 1
@@ -117,9 +125,10 @@ function pageddf(df, rstart, rc, ndisplay)
 end
 
 """
-    peekfile(inputpath, filename; n = 10)
+    peekfile(inputpath, filename; n = 10, rev = false)
 
-Look at the first few lines, n, in a text file.
+Look at the first few lines in a text file.
+Keywords: n = 10, number of lines; rev = false, list from end of file
 """
 function peekfile(inputpath, filename; n = 10, rev = false)
     if rev == true
