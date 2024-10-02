@@ -1,6 +1,6 @@
 module AnalysisUtils
 using DataSkimmer, DataFrames, CSV, MethodChains
-export header, append_output, surveydf, dfuniqmissing, describeDF, pageddf, peekfile
+export header, append_output, surveydf, dfuniqmissing, colvaluecategories, describeDF, pageddf, peekfile
 
 """
     header(header; sep="-", pre="", post="")
@@ -98,6 +98,32 @@ function dfuniqmissing(df)
         select(it, Not(:min, :max), :min, :max)
         show(it, truncate = 0, allcols = true, allrows = true)
     }
+end
+
+"""
+    colvaluecategories(df::DataFrame, f::Function, col::Symbol, newcol::Symbol)
+
+Using f to categorize a column's values,
+give the nrows and percent of values in that category.
+"""
+function colvaluecategories(df::DataFrame, f::Function, col::Symbol, newcol::Symbol)
+    @mc df.{
+        nrows = nrow(it)
+        select(it, col)
+        transform(it, col => ByRow(f) => newcol)
+        groupby(it, newcol)
+        combine(it, nrow)
+        sort(it, :nrow, rev = true)
+        transform(it, :nrow => ByRow(nr -> round((nr / nrows) * 100,
+                                                 digits = 2)) => :percent)
+        show(it)}
+    println("\n\n")
+    @mc df.{
+        select(it, col)
+        transform(it, col => ByRow(f) => newcol)
+        subset(it, newcol => ByRow(nc -> !(nc)), skipmissing = true)
+        unique(it, col)
+        show(it)}
 end
 
 """
