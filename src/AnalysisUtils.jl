@@ -1,6 +1,6 @@
 module AnalysisUtils
-using DataSkimmer, DataFrames
-export header, append_output, surveydf, describeDF, pageddf, peekfile
+using DataSkimmer, DataFrames, CSV, MethodChains
+export header, append_output, surveydf, dfuniqmissing, describeDF, pageddf, peekfile
 
 """
     header(header; sep="-", pre="", post="")
@@ -83,6 +83,21 @@ function describeDF(df, name, cats)
    header(name, sep = "=")
    println("\n")
    surveydf(df, cats)
+end
+
+"""
+    dfuniqmissing(df::DataFrame)
+
+Describe a dataframe's unique and missing values
+"""
+function dfuniqmissing(df)
+    nr = nrow(df)
+    @mc describe(df, :eltype, :nuniqueall, :nmissing, :min, :max).{
+        transform(it, :nmissing => ByRow(n -> n / nr * 100) => :percent_missing)
+        transform(it, :nuniqueall => ByRow(n -> n / nr * 100) => :percent_unique)
+        select(it, Not(:min, :max), :min, :max)
+        show(it, truncate = 0, allcols = true, allrows = true)
+    }
 end
 
 """
