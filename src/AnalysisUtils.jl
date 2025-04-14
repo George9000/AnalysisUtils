@@ -1,5 +1,5 @@
 module AnalysisUtils
-using DataSkimmer, DataFrames, CSV, MethodChains
+using DataSkimmer, DataFrames, CSV, DataPipes
 export header, append_output, surveydf, dfuniqmissing, colvaluecategories, describeDF, pageddf, peekfile
 
 """
@@ -92,12 +92,13 @@ Describe a dataframe's unique and missing values
 """
 function dfuniqmissing(df)
     nr = nrow(df)
-    @mc describe(df, :eltype, :nuniqueall, :nmissing, :min, :max).{
-        transform(it, :nmissing => ByRow(n -> n / nr * 100) => :percent_missing)
-        transform(it, :nuniqueall => ByRow(n -> n / nr * 100) => :percent_unique)
-        select(it, Not(:min, :max), :min, :max)
-        show(it, truncate = 0, allcols = true, allrows = true)
-    }
+    @p let
+        describe(df, :eltype, :nuniqueall, :nmissing, :min, :max)
+        transform(__, :nmissing => ByRow(n -> n / nr * 100) => :percent_missing)
+        transform(__, :nuniqueall => ByRow(n -> n / nr * 100) => :percent_unique)
+        select(__, Not(:min, :max), :min, :max)
+        show(__, truncate=0, allcols=true, allrows=true)
+    end
 end
 
 """
@@ -107,23 +108,27 @@ Using f to categorize a column's values,
 give the nrows and percent of values in that category.
 """
 function colvaluecategories(df::DataFrame, f::Function, col::Symbol, newcol::Symbol)
-    @mc df.{
-        nrows = nrow(it)
-        select(it, col)
-        transform(it, col => ByRow(f) => newcol)
-        groupby(it, newcol)
-        combine(it, nrow)
-        sort(it, :nrow, rev = true)
-        transform(it, :nrow => ByRow(nr -> round((nr / nrows) * 100,
+    @p let
+        df
+        nrows = nrow(__)
+        select(__, col)
+        transform(__, col => ByRow(f) => newcol)
+        groupby(__, newcol)
+        combine(__, nrow)
+        sort(__, :nrow, rev = true)
+        transform(__, :nrow => ByRow(nr -> round((nr / nrows) * 100,
                                                  digits = 2)) => :percent)
-        show(it)}
+        show(__)
+    end
     println("\n\n")
-    @mc df.{
-        select(it, col)
-        transform(it, col => ByRow(f) => newcol)
-        subset(it, newcol => ByRow(nc -> !(nc)), skipmissing = true)
-        unique(it, col)
-        show(it)}
+    @p let
+        df
+        select(__, col)
+        transform(__, col => ByRow(f) => newcol)
+        subset(__, newcol => ByRow(nc -> !(nc)), skipmissing = true)
+        unique(__, col)
+        show(__)
+    end
 end
 
 """
