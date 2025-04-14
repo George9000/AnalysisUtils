@@ -1,5 +1,6 @@
 module AnalysisUtils
-using DataSkimmer, DataFrames, CSV, DataPipes
+# using DataSkimmer
+using DataFrames, CSV, DataPipes
 export header, append_output, surveydf, dfuniqmissing, colvaluecategories, describeDF, pageddf, peekfile
 
 """
@@ -51,7 +52,7 @@ symb, a tuple of tuples ((symbol, n_unique_values),)
 function surveydf(df::DataFrame, symb::Tuple = ())
     show(describe(df, :min, :max, :nmissing, :nuniqueall, :eltype), allcols = true, allrows = true, truncate = 0)
     println("\n")
-    show(skim(df))
+    # show(skim(df))
     println("\n")
     if length(symb) > 0
         for item in symb
