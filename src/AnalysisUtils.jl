@@ -50,6 +50,9 @@ symb, a tuple of tuples ((symbol, n_unique_values),)
   default is an empty tuple
 """
 function surveydf(df::DataFrame, symb::Tuple = ())
+    header("Size of dataframe", sep = "~")
+    show(size(df))
+    println("\n")
     show(describe(df, :min, :max, :nmissing, :nuniqueall, :eltype), allcols = true, allrows = true, truncate = 0)
     println("\n")
     # show(skim(df))
